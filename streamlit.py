@@ -62,7 +62,7 @@ def intro():
             blob_name = 'Images/Uploads/test.jpg'
             res = upload_to_gcs(content, bucket_name, blob_name)
             st.write('Response Code: ' + res)
-            st.write('Show File: ' + )
+            st.write('Show File: ' + fname)
         except:
             st.write('Error')
     else:
