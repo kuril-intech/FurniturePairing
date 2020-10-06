@@ -22,7 +22,7 @@ from PIL import Image
 #Parameter
 project_id = 'abstract-veld-289612'
 bucket_name = 'ftmle'
-storage_client = storage.Client.from_service_account_json("/home/mkhoa/CoderSchool/FurniturePairing/Credentials/abstract-veld-289612-327ddac80eba.json")
+storage_client = storage.Client.from_service_account_json("./Credentials/abstract-veld-289612-327ddac80eba.json")
 blob = 'Images/Products/146331-0-home-design.jpg'
 
 def generate_download_signed_url_v4(bucket_name, blob_name):
@@ -87,8 +87,8 @@ def generate_upload_signed_url_v4(bucket_name, blob_name):
 
 # test_img = Image.open('test.jpg')
 # print(te)
-img = open('test.jpg', 'rb')
-blob_name = 'Images/Uploads/test.jpg'
+# img = open('test.jpg', 'rb')
+# blob_name = 'Images/Uploads/test.jpg'
 def upload_to_gcs(img, bucket_name, blob_name):
     upload_url = generate_upload_signed_url_v4(bucket_name, blob_name)
     headers = {'content-type': 'application/octet-stream'}
