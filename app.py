@@ -20,7 +20,6 @@ from detection import query_product
 #sys.setrecursionlimit(15000)
 #script_location = Path(__file__).absolute().parent
 #Parameter
-vvv
 product_set_id = 'PAIR'
 bucket_name = 'ftmle'
 product_category= 'homegoods-v2'
