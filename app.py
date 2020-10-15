@@ -12,10 +12,13 @@ from pathlib import Path
 from enum import Enum
 from io import BytesIO, StringIO
 from typing import Union
+
 from detection import upload_to_gcs
 from detection import generate_download_signed_url_v4
 from detection import get_similar_products_uri
 from detection import query_product
+
+from retrieval import retrieval
 
 #sys.setrecursionlimit(15000)
 #script_location = Path(__file__).absolute().parent
@@ -53,12 +56,13 @@ def main():
     st.sidebar.title("What to do")
     st.set_option('deprecation.showfileUploaderEncoding', False)
     app_mode = st.sidebar.selectbox("Choose the app mode",
-        ["Introduction", "Furniture Detection", "Furniture Pairing"])
+        ["Introduction", "Furniture Recommendation", "Furniture Pairing"])
     if app_mode == "Introduction":
         st.sidebar.success('To continue select "Run the app".')
         intro()
-    elif app_mode == "Furniture Detection":
-        st.write('Furniture Detection')
+    elif app_mode == "Furniture Recommendation":
+        st.write('Furniture Recommendation')
+        recommendation()
     elif app_mode == "Furniture Pairing":
         st.write('Furniture Detection')
 
@@ -154,6 +158,39 @@ def intro():
     for i in range(n):
         st.markdown(f'''## Object {str(i)}''')
         get_product(i, res)
+        
+def recommendation():
+    st.markdown('# Upload Image')
+    fileTypes = ["png", "jpg", "jpeg"]  
+    st.markdown(STYLE, unsafe_allow_html=True)
+    file = st.file_uploader("Upload image of furnitures", type=fileTypes)
+    show_file = st.empty()
+    if not file:
+        show_file.info("Please upload a file of type: " + ", ".join(["png", "jpg", "jpeg"]))
+        return
+    content = file.getvalue()
+    if isinstance(file, BytesIO):
+        show_file.image(file)
+        try:
+            kind = filetype.guess(file)
+            fname = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.')
+            bucket_name = 'ftmle'
+            blob_name = 'Images/Uploads/' + fname + '.' + kind.extension
+            res = upload_to_gcs(content, bucket_name, blob_name)
+            st.write('Path: ' + 'gs://' + bucket_name + '/' + str(blob_name))
+            st.write('Response Code: ' + str(res))
+        except:
+            st.write('Error')
+    else:
+        data = pd.read_csv(file)
+        st.dataframe(data.head(10))
+        file.close()
+
+    if blob_name:
+        retrieval_result = retrieval(blob_name)
+        st.write(retrieval_result)
+        for i in retrieval_result:
+            st.write(generate_download_signed_url_v4(i))
     
 if __name__ == "__main__":
     main()

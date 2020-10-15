@@ -1,12 +1,5 @@
-import urllib
 import pymysql
-import os
-import pandas as pd
-import numpy as np
-import time
-import google.auth
 import datetime
-import six
 import requests
 
 from google.cloud import vision
