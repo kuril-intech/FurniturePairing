@@ -190,7 +190,8 @@ def recommendation():
         retrieval_result = retrieval(blob_name)
         st.write(retrieval_result)
         for i in retrieval_result:
-            st.write(generate_download_signed_url_v4(i))
+            url = generate_download_signed_url_v4(bucket_name, i)
+            st.image(url)
     
 if __name__ == "__main__":
     main()
