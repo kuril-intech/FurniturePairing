@@ -22,7 +22,7 @@ from detection import query_product
 #Parameter
 project_id = 'abstract-veld-289612'
 location = 'asia-east1'
-product_set_id = 'PAIR'
+product_set_id = 'PAIR-Thumbnail'
 bucket_name = 'ftmle'
 product_category= 'homegoods-v2'
 color = [(255,0,0), 
