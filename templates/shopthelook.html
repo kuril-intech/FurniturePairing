@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<html>
+  <body>
+    
+    <div class="container">
+    <div class="col-sm-offset-1 col-sm-10" id="one">
+        <h1>File Upload</h1>
+        <p>Please upload documents only in 'jpg', 'jpeg' & 'png' format</p>
+        <form method="POST" action="" enctype="multipart/form-data">
+            <p><input type="file" name="file"></p>
+            <button><input type="submit" value="Submit" class="btn btn-dark upload-btn"></button>
+        </form>
+    </div>
+    </div>
+      
+  </body>
+</html>
+
+{% endblock %}
