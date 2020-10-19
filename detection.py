@@ -142,14 +142,16 @@ def query_product(id):
     
     '''
     query = f'''
-    SELECT id, website, product, image, url
-    FROM project.ProductHeader WHERE id = '{id}'
+    SELECT a.id, a.website, a.product, a.image, a.url, b.group_category
+    FROM project.ProductHeader a
+    LEFT JOIN project.category b ON a.category = b.Category
+    WHERE a.id = '{id}'
     '''
     try:
         cur.execute(query)
     except Exception as err:
-        print('ERROR BY INSERT:', err)
-    result = cur.fetchall()
+        print('ERROR BY SELECT:', err)
+    result = cur.fetchone()
     return result
 
 

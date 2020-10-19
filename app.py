@@ -25,7 +25,7 @@ from retrieval import retrieval
 #Parameter
 project_id = 'abstract-veld-289612'
 location = 'asia-east1'
-product_set_id = 'PAIR-Thumbnail'
+product_set_id = 'PAIR-Filter'
 bucket_name = 'ftmle'
 product_category= 'homegoods-v2'
 color = [(255,0,0), 
@@ -74,6 +74,24 @@ def url_to_image(url):
     image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     # return the image
     return image
+
+def show_result(res):
+    result = []
+    for i in range(len(res)):    
+        for j in range(len(res[i].results)):
+            d = {}
+            d['object'] = i
+            d['idx'] = int(res[i].results[j].product.name.split('/', -1)[-1])
+            d['name'] = res[i].results[j].product.display_name
+            d['score'] = res[i].results[j].score
+            result.append(d)
+    result = pd.DataFrame(result)  
+    query = pd.DataFrame(result['idx'].apply(query_product).tolist(), columns=['idx', 'Website', 'Product Name', 'Image', 'URL', 'Category'])
+    df = result.merge(query)
+    df = df.drop_duplicates('idx')
+    df = df[df['score'] > 0.5]
+    return df
+                 
 
 def get_product(n, res):
     for i in range(3):
@@ -154,10 +172,18 @@ def intro():
     st.write('Detected ' + str(n) + ' objects')
     draw_bounding(res, serving_url)
     
+    st.markdown('# Search Results')
+    df = show_result(res)
+    st.dataframe(df)
+    
     st.markdown('# Similar Products')
-    for i in range(n):
-        st.markdown(f'''## Object {str(i)}''')
-        get_product(i, res)
+    for i in df['Category'].unique():
+        st.markdown(f'''**{i}**''')
+        products = df[df['Category'] == i]
+        for idx, rows in products.iterrows():
+            st.image(rows['Image'])
+            st.write('Product: ' + str(rows['idx']))
+            st.markdown(f'''[{rows['name']}]({rows['URL']})''')
         
 def recommendation():
     st.markdown('# Upload Image')
