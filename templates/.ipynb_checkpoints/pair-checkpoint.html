@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="col-sm-offset-1 col-sm-10" id="one">
+            <h1>File Upload</h1>
+            <p>Please upload documents only in 'jpg', 'jpeg' & 'png' format</p>
+            <form method="POST" action="" enctype="multipart/form-data">
+                <p><input type="file" name="file"></p>
+                <button><input type="submit" value="Submit" class="btn btn-dark upload-btn"></button>
+        </div>
+
+        {% if pair_result %}
+        <div>
+            <div class="row d-flex justify-content-center p-10">
+                {% for idx, rows in pair_result.iterrows() %}
+                <div class="card p-2" style="width: 18rem;">
+                    <img class="card-img-top" src="{{rows['image']}}" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title" style='height: 70px; overflow:hidden'>{{rows['bucket_path']}}</h5>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
