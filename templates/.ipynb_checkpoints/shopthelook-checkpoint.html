@@ -13,7 +13,7 @@
         <br>
         <div class='search-result'>
         {% if product_search != null %}
-            <img src="data:image/jpeg;charset=utf-8;base64,{{bounding_box}}" />
+            <img src="{{bounding_box}}" />
             <button type="button" class="collapsible">Result</button>
             <div class="collapsible-content">
                 <h2>Respond Code: {{product_search}}</h2>
@@ -31,7 +31,7 @@
                 <h5 class="card-title" style='height: 70px; overflow:hidden'>{{rows['Name']}}</h5>
                 <p class="card-text">Product ID: {{rows['idx']}}</p>
                 <p class="card-text">Object ID: {{rows['object']}}</p>
-                <a href="{{rows['URL']}}" class="btn btn-dark">View</a>
+                <a href="{{rows['URL']}}"  target="_blank" class="btn btn-dark">View</a>
                 </div>
             </div>
             {% endfor %}

@@ -7,11 +7,12 @@ import urllib
 import numpy as np
 import cv2
 
-from base64 import b64encode
+import base64
 from detection import upload_to_gcs
 from detection import generate_download_signed_url_v4
 from detection import get_similar_products_uri
 from detection import query_product
+from tempfile import TemporaryFile
 
 app = Flask(__name__)
 app.secret_key = 'keye'
@@ -104,8 +105,11 @@ def draw_bounding(res, img_url):
         y2 = int(res[i].bounding_poly.normalized_vertices[2].y * h)
         result = cv2.rectangle(img,(x1,y1), (x2,y2), color[i], thickness=5)
         result = cv2.putText(result,str(i), (x1, y1), font, fontScale, fontColor, lineType)  
-        result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
-    return result
+    result = cv2.imencode('.jpg', result)[1].tostring()
+    fname = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.') + '.jpg'
+    blob_name = 'Images/Bounding/' + fname
+    upload_to_gcs(result, bucket_name, blob_name)  
+    return blob_name
     
 @app.route('/')
 def index():
@@ -143,10 +147,11 @@ def upload_file():
     df = df.drop_duplicates('idx')
     df = df[df['score'] > 0.5].sort_values(by='Category')
     
-    result_img = b64encode(draw_bounding(res, serving_url)).decode("utf-8")
+    bounding_img = draw_bounding(res, serving_url)
+    bounding_img = generate_download_signed_url_v4(bucket_name, bounding_img)
     
     return render_template('shopthelook.html', product_search=response, tables=[df.to_html(classes='data')], titles=df.columns.values,
-                          results = df, bounding_box=result_img, s_url=serving_url)
+                          results = df, bounding_box=bounding_img)
 
 @app.route('/uyeol', methods = ['POST', 'GET'])
 def uyeol():
