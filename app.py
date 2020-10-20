@@ -12,7 +12,7 @@ from detection import upload_to_gcs
 from detection import generate_download_signed_url_v4
 from detection import get_similar_products_uri
 from detection import query_product
-from tempfile import TemporaryFile
+from retrieval import retrieval
 
 app = Flask(__name__)
 app.secret_key = 'keye'
@@ -152,6 +152,32 @@ def upload_file():
     
     return render_template('shopthelook.html', product_search=response, tables=[df.to_html(classes='data')], titles=df.columns.values,
                           results = df, bounding_box=bounding_img)
+
+@app.route('/pair')
+def pair():
+  return render_template('pair.html')
+
+@app.route('/pair', methods = ['POST'])
+def pair_upload_file():
+    uploaded_file = request.files['file']
+    content = uploaded_file.read()
+    if uploaded_file.filename != '':
+        fname = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.') + '-' + uploaded_file.filename
+        blob_name = 'Images/Uploads/' + fname
+        response = upload_to_gcs(content, bucket_name, blob_name)
+
+    if blob_name:
+        retrieval_result = retrieval(blob_name)
+        results = []
+        for i in retrieval_result:
+            d = {}
+            d['bucket_path'] = i
+            d['image'] = generate_download_signed_url_v4(bucket_name, i)
+            results.append(d)
+        
+        results = pd.DataFrame(results, columns=['bucket_path', 'image'])
+    
+    return render_template('pair.html', pair_result=results)
 
 @app.route('/uyeol', methods = ['POST', 'GET'])
 def uyeol():

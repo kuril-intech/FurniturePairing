@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 import pickle
-import streamlit as st
 
 from google.cloud import storage
 from annoy import AnnoyIndex
@@ -9,7 +8,6 @@ from annoy import AnnoyIndex
 project_id = 'abstract-veld-289612'
 bucket_name = 'ftmle'
 storage_client = storage.Client.from_service_account_json("./Credentials/abstract-veld-289612-327ddac80eba.json")
-
 
 def load_bucket_image(path):
     '''
@@ -40,7 +38,7 @@ def load_and_preprocess_candidate(path):
   return preprocess_image(path)
 
 def load_index_model():
-    tower1_model = tf.keras.models.load_model('./Model/Retrieval_tower1.h5')
+    tower1_model = tf.keras.models.load_model('./Model/Retrieval_tower1.h5', compile=False)
     with open('./Model/candidate_to_path.p', 'rb') as handle:
         candidate_to_path = pickle.load(handle)
     
