@@ -177,7 +177,7 @@ def pair_upload_file():
         
         results = pd.DataFrame(results, columns=['bucket_path', 'image'])
     
-    return render_template('pair.html', pair_result=results)
+    return render_template('pair.html', retrieval=retrieval_result, pair_result=results)
 
 @app.route('/uyeol', methods = ['POST', 'GET'])
 def uyeol():

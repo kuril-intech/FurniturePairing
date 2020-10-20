@@ -10,7 +10,7 @@
                 <button><input type="submit" value="Submit" class="btn btn-dark upload-btn"></button>
         </div>
 
-        {% if not pair_result.empty %}
+        {% if retrieval != null %}
         <div>
             <div class="row d-flex justify-content-center p-10">
                 {% for idx, rows in pair_result.iterrows() %}
