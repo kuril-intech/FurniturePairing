@@ -17,7 +17,7 @@ from detection import upload_to_gcs
 from detection import generate_download_signed_url_v4
 from detection import get_similar_products_uri
 from detection import query_product
-
+from base64 import b64encode
 from retrieval import retrieval
 
 #sys.setrecursionlimit(15000)
@@ -127,6 +127,7 @@ def draw_bounding(res, img_url):
         string += x
     
     st.image(result)
+    st.write(b64encode(result).decode("utf-8"))
     st.text(string)
 
 def search_product(bucket_name, blob_name):

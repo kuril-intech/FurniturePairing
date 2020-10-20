@@ -1,49 +1,42 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<html>
-  <body>
-    
     <div class="container">
         <div class="col-sm-offset-1 col-sm-10" id="one">
             <h1>File Upload</h1>
             <p>Please upload documents only in 'jpg', 'jpeg' & 'png' format</p>
             <form method="POST" action="" enctype="multipart/form-data">
                 <p><input type="file" name="file"></p>
-                </button><input type="submit" value="Submit" class="btn btn-dark upload-btn"></button>
-            </form>
+                <button><input type="submit" value="Submit" class="btn btn-dark upload-btn"></button>
         </div>
         
         <br>
+        <div class='search-result'>
         {% if product_search != null %}
+            <img src="data:image/jpeg;charset=utf-8;base64,{{bounding_box}}" />
             <button type="button" class="collapsible">Result</button>
             <div class="collapsible-content">
                 <h2>Respond Code: {{product_search}}</h2>
-
                 {% for table in tables %}
                     {{title}}
                     {{table|safe}}
                 {% endfor %}
-
             </div>
-    
-            <div class='product-grid'>
-                {% for idx, rows in results.iterrows() %}
-                <img src= {{rows['Image']}} >
-                <a href={{rows['URL']}}>{{rows['Name']}}</a>
-                <p>Product ID: {{rows['idx']}}</p>
-                {% endfor %}
+            
+        <div class="row d-flex justify-content-center p-10">
+            {% for idx, rows in results.iterrows() %}
+            <div class="card p-2" style="width: 18rem;">
+                <img class="card-img-top" src="{{rows['Image']}}" alt="Card image cap">
+                <div class="card-body">
+                <h5 class="card-title" style='height: 70px; overflow:hidden'>{{rows['Name']}}</h5>
+                <p class="card-text">Product ID: {{rows['idx']}}</p>
+                <p class="card-text">Object ID: {{rows['object']}}</p>
+                <a href="{{rows['URL']}}" class="btn btn-dark">View</a>
+                </div>
             </div>
-    
+            {% endfor %}
+        </div>
         {% endif %}
-        <br>
-    
-
-    
-    </div>
-       
-  </body>
-</html>
-
+        </div>
+    </div>      
 {% endblock %}
