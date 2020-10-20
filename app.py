@@ -1,17 +1,34 @@
 from flask import Flask, render_template, session, request, url_for, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
+import pandas as pd
 import datetime
 import hashlib
-app = Flask(__name__)
 
-UPLOAD_FOLDER = '/Uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+from detection import upload_to_gcs
+from detection import generate_download_signed_url_v4
+from detection import get_similar_products_uri
+from detection import query_product
+
+app = Flask(__name__)
 app.secret_key = 'keye'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mkhoa:NTMK261194@dng@35.221.181.94:3306/project' #veritabanını bağlıyoruz
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
-
+project_id = 'abstract-veld-289612'
+location = 'asia-east1'
+product_set_id = 'PAIR-Filter'
+bucket_name = 'ftmle'
+product_category= 'homegoods-v2'
+color = [(255,0,0), 
+         (0,255,0), 
+         (0,0, 255), 
+         (135, 170, 170), 
+         (135, 100, 125), 
+         (135, 100, 190), 
+         (0, 255, 255), 
+         (255, 255, 255),
+        (255, 0, 255),
+        (255, 255, 255)]
 
 #SQLAlchemy yapısı ve classlar kullanarak veritabanı oluşturma işlemlerini yapılıyor.
 class Kullanicilar(db.Model):
@@ -52,15 +69,17 @@ yetki=False
 girisyapildi=False
 kullanici=''
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def search_product(bucket_name, blob_name):
+    serving_url = generate_download_signed_url_v4(bucket_name, blob_name)
+    res = get_similar_products_uri(project_id, location, product_set_id, product_category,
+        image_uri=serving_url, filter='')
+    return res, serving_url
 
 @app.route('/')
 def index():
     header=ProductHeader.query.limit(120).all() #Ürünleri veritabanından çekiyoruz
     #index sayfasına değişkenleri ürünleri ve index htmli gönderiyoruz
-    return render_template('index.html', girisyapildi = girisyapildi, yetki = yetki, Header=header) 
+    return render_template('index.html', Header=header) 
 
 @app.route('/shopthelook')
 def shopthelook():
@@ -69,9 +88,31 @@ def shopthelook():
 @app.route('/shopthelook', methods = ['POST'])
 def upload_file():
     uploaded_file = request.files['file']
+    content = uploaded_file.read()
     if uploaded_file.filename != '':
-        uploaded_file.save(uploaded_file.filename)
-    return redirect(url_for('shopthelook'))
+        fname = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.') + '-' + uploaded_file.filename
+        blob_name = 'Images/Uploads/' + fname
+        response = upload_to_gcs(content, bucket_name, blob_name)
+    
+    res, serving_url = search_product(bucket_name, blob_name)
+    
+    result = []
+    for i in range(len(res)):    
+        for j in range(len(res[i].results)):
+            d = {}
+            d['object'] = i
+            d['idx'] = int(res[i].results[j].product.name.split('/', -1)[-1])
+            d['score'] = res[i].results[j].score
+            result.append(d)
+    
+    result = pd.DataFrame(result)  
+    query = pd.DataFrame(result['idx'].apply(query_product).tolist(), columns=['idx', 'Website', 'Name', 'Image', 'URL', 'Category'])
+    df = result.merge(query)
+    df = df.drop_duplicates('idx')
+    df = df[df['score'] > 0.5].sort_values(by='Category')
+    
+    return render_template('shopthelook.html', product_search=response, tables=[df.to_html(classes='data')], titles=df.columns.values,
+                          results = df)
 
 @app.route('/uyeol', methods = ['POST', 'GET'])
 def uyeol():
@@ -261,7 +302,6 @@ def satinal():
     s.adet = 0
   db.session.commit()
   return redirect(url_for('index'))
-
 
 if __name__ == '__main__':
   app.run(debug=True, host='0.0.0.0', port=8085)
