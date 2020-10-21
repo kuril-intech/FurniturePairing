@@ -1,5 +1,6 @@
 from flask import Flask, render_template, session, request, url_for, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_caching import Cache
 import pandas as pd
 import datetime
 import hashlib
@@ -12,6 +13,7 @@ from detection import upload_to_gcs
 from detection import generate_download_signed_url_v4
 from detection import get_similar_products_uri
 from detection import query_product
+from detection import get_thumbnail
 from retrieval import retrieval
 
 app = Flask(__name__)
@@ -34,6 +36,14 @@ color = [(255,0,0),
          (255, 255, 255),
         (255, 0, 255),
         (255, 255, 255)]
+
+config = {
+    "DEBUG": True,          # some Flask specific configs
+    "CACHE_TYPE": "simple", # Flask-Caching related configs
+    "CACHE_DEFAULT_TIMEOUT": 10000
+}
+app.config.from_mapping(config)
+cache = Cache(app)
 
 class ProductHeader(db.Model): # Urunler
     __tablename__ = "ProductHeader"
@@ -82,12 +92,16 @@ def draw_bounding(res, img_url):
     blob_name = 'Images/Bounding/' + fname
     upload_to_gcs(result, bucket_name, blob_name)  
     return blob_name
-    
+
 @app.route('/')
 def index():
-    header=ProductHeader.query.limit(120).all() #Ürünleri veritabanından çekiyoruz
-    #index sayfasına değişkenleri ürünleri ve index htmli gönderiyoruz
-    return render_template('index.html', Header=header) 
+    return render_template('index.html') 
+
+@app.route('/store')
+@cache.cached(timeout=1000)
+def store():
+    header=ProductHeader.query.filter((ProductHeader.website == 'aconcept-vn.com'))
+    return render_template('store.html', Header=header) 
 
 @app.route('/shopthelook')
 def shopthelook():
@@ -127,7 +141,22 @@ def upload_file():
 
 @app.route('/pair')
 def pair():
-  return render_template('pair.html')
+    product_id = request.args.get('product_id', type = int)
+    if product_id:
+        blob_name = get_thumbnail(product_id)[1]
+        retrieval_result = retrieval(blob_name)
+        results = []
+        for i in retrieval_result:
+            d = {}
+            d['bucket_path'] = i
+            d['image'] = generate_download_signed_url_v4(bucket_name, i)
+            results.append(d)
+        
+        results = pd.DataFrame(results, columns=['bucket_path', 'image'])
+
+        return render_template('pair.html', retrieval=retrieval_result, pair_result=results)
+    else:
+        return render_template('pair.html')
 
 @app.route('/pair', methods = ['POST'])
 def pair_upload_file():

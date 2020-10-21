@@ -32,6 +32,7 @@
                 <p class="card-text">Product ID: {{rows['idx']}}</p>
                 <p class="card-text">Object ID: {{rows['object']}}</p>
                 <a href="{{rows['URL']}}"  target="_blank" class="btn btn-dark">View</a>
+                <a href="/pair?product_id={{rows['idx']}}"  target="_blank" class="btn btn-dark" style="position: relative; right: 0;">Pair</a>
                 </div>
             </div>
             {% endfor %}

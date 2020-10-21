@@ -100,7 +100,7 @@ def index():
 @app.route('/store')
 @cache.cached(timeout=1000)
 def store():
-    header=ProductHeader.query.limit(120).filter((ProductHeader.website == 'aconcept-vn.com'))
+    header=ProductHeader.query.filter((ProductHeader.website == 'aconcept-vn.com'))
     return render_template('store.html', Header=header) 
 
 @app.route('/shopthelook')
@@ -143,7 +143,7 @@ def upload_file():
 def pair():
     product_id = request.args.get('product_id', type = int)
     if product_id:
-        blob_name = get_thumbnail(product_id)
+        blob_name = get_thumbnail(product_id)[1]
         retrieval_result = retrieval(blob_name)
         results = []
         for i in retrieval_result:
