@@ -154,6 +154,42 @@ def query_product(id):
     result = cur.fetchone()
     return result
 
+def get_thumbnail(id):
+    '''
+    
+    '''
+    query = f'''
+    SELECT id, bucket_path
+    FROM project.Files
+    WHERE id = '{id}' AND bucket_path like '%Thumbnails%'
+    '''
+    try:
+        cur.execute(query)
+    except Exception as err:
+        print('ERROR BY SELECT:', err)
+    result = cur.fetchone()
+    return result
+
+def bucket2product(bucket_path):
+    '''
+    Reverse thumbnail bucket path to query product information
+    
+    
+    '''
+    query = f'''
+    SELECT a.id, a.product, a.url
+    FROM project.ProductHeader a
+    LEFT JOIN project.Files b ON a.id = b.id
+    WHERE b.bucket_path = '{bucket_path}'
+    '''
+    try:
+        cur.execute(query)
+    except Exception as err:
+        print('ERROR BY SELECT:', err)
+    result = cur.fetchone()
+    return result
+
+
 
 
     

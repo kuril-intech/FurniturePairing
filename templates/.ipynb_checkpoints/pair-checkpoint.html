@@ -10,14 +10,15 @@
                 <button><input type="submit" value="Submit" class="btn btn-dark upload-btn"></button>
         </div>
 
-        {% if pair_result %}
+        {% if retrieval != null %}
         <div>
             <div class="row d-flex justify-content-center p-10">
                 {% for idx, rows in pair_result.iterrows() %}
                 <div class="card p-2" style="width: 18rem;">
                     <img class="card-img-top" src="{{rows['image']}}" alt="Card image cap">
                     <div class="card-body">
-                        <h5 class="card-title" style='height: 70px; overflow:hidden'>{{rows['bucket_path']}}</h5>
+                        <h5 class="card-title" style='height: 70px; overflow:hidden'>{{rows['name']}}</h5>
+                        <a href="{{rows['url']}}"  target="_blank" class="btn btn-dark">View</a>
                     </div>
                 </div>
                 {% endfor %}

@@ -14,6 +14,7 @@ from detection import generate_download_signed_url_v4
 from detection import get_similar_products_uri
 from detection import query_product
 from detection import get_thumbnail
+from detection import bucket2product
 from retrieval import retrieval
 
 app = Flask(__name__)
@@ -148,11 +149,14 @@ def pair():
         results = []
         for i in retrieval_result:
             d = {}
-            d['bucket_path'] = i
+            path2product = bucket2product(i)
+            d['id'] = path2product[0]
+            d['name'] = path2product[1]
+            d['url'] = path2product[2]
             d['image'] = generate_download_signed_url_v4(bucket_name, i)
             results.append(d)
         
-        results = pd.DataFrame(results, columns=['bucket_path', 'image'])
+        results = pd.DataFrame(results, columns=['id', 'name', 'url', 'image'])
 
         return render_template('pair.html', retrieval=retrieval_result, pair_result=results)
     else:
@@ -172,11 +176,14 @@ def pair_upload_file():
         results = []
         for i in retrieval_result:
             d = {}
-            d['bucket_path'] = i
+            path2product = bucket2product(i)
+            d['id'] = path2product[0]
+            d['name'] = path2product[1]
+            d['url'] = path2product[2]
             d['image'] = generate_download_signed_url_v4(bucket_name, i)
             results.append(d)
         
-        results = pd.DataFrame(results, columns=['bucket_path', 'image'])
+        results = pd.DataFrame(results, columns=['id', 'name', 'url', 'image'])
     
     return render_template('pair.html', retrieval=retrieval_result, pair_result=results)
 

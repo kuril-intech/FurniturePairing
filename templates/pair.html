@@ -17,7 +17,8 @@
                 <div class="card p-2" style="width: 18rem;">
                     <img class="card-img-top" src="{{rows['image']}}" alt="Card image cap">
                     <div class="card-body">
-                        <h5 class="card-title" style='height: 70px; overflow:hidden'>{{rows['bucket_path']}}</h5>
+                        <h5 class="card-title" style='height: 70px; overflow:hidden'>{{rows['name']}}</h5>
+                        <a href="{{rows['url']}}"  target="_blank" class="btn btn-dark">View</a>
                     </div>
                 </div>
                 {% endfor %}
