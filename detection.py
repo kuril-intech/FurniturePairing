@@ -154,6 +154,23 @@ def query_product(id):
     result = cur.fetchone()
     return result
 
+def get_thumbnail(id):
+    '''
+    
+    '''
+    query = f'''
+    SELECT id, bucket_path
+    FROM project.Files
+    WHERE id = '{id}' AND bucket_path like '%Thumbnails%'
+    '''
+    try:
+        cur.execute(query)
+    except Exception as err:
+        print('ERROR BY SELECT:', err)
+    result = cur.fetchone()
+    return result
+
+
 
 
     
