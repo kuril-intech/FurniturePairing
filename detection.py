@@ -128,9 +128,9 @@ def get_similar_products_uri(
 
 #Setup Connection to mysql database
 conn = pymysql.connect(
-    host='35.221.181.94',
+    host='10.127.96.3',
     port=int(3306),
-    user="streamlit",
+    user="mkhoa",
     passwd='Mkhoa94@coderschool',
     db="project",
     charset='utf8mb4')

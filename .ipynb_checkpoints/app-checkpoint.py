@@ -19,7 +19,7 @@ from retrieval import retrieval
 
 app = Flask(__name__)
 app.secret_key = 'keye'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mkhoa:NTMK261194@dng@35.221.181.94:3306/project' #veritabanını bağlıyoruz
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mkhoa:Mkhoa94@coderschool@10.127.96.3:3306/project' #veritabanını bağlıyoruz
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 project_id = 'abstract-veld-289612'
