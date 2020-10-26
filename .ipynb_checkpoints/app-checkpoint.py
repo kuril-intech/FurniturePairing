@@ -19,7 +19,7 @@ from retrieval import retrieval
 
 app = Flask(__name__)
 app.secret_key = 'keye'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mkhoa:Mkhoa94@coderschool@10.127.96.3:3306/project' #veritabanını bağlıyoruz
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mkhoa:Mkhoa94@coderschool@10.127.96.3:3306/project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 project_id = 'abstract-veld-289612'
@@ -39,8 +39,8 @@ color = [(255,0,0),
         (255, 255, 255)]
 
 config = {
-    "DEBUG": True,          # some Flask specific configs
-    "CACHE_TYPE": "simple", # Flask-Caching related configs
+    "DEBUG": True, 
+    "CACHE_TYPE": "simple",
     "CACHE_DEFAULT_TIMEOUT": 10000
 }
 app.config.from_mapping(config)
@@ -101,7 +101,7 @@ def index():
 @app.route('/store')
 @cache.cached(timeout=1000)
 def store():
-    header=ProductHeader.query.filter((ProductHeader.website == 'aconcept-vn.com'))
+    header=ProductHeader.query.filter((ProductHeader.website == 'aconcept-vn.com')).limit(60)
     return render_template('store.html', Header=header) 
 
 @app.route('/shopthelook')
@@ -187,41 +187,8 @@ def pair_upload_file():
     
     return render_template('pair.html', retrieval=retrieval_result, pair_result=results)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        #html ile giriş yapmak isteyen kullanıcının bilgilerini alıyoruz
-        email = request.form['email']
-        sifre = request.form['sifre']
-        hashli=hashlib.sha256(sifre.encode("utf8")).hexdigest()
-        
-        #kullanıcı giriş yaptığında yeni sepet oluşturuyoruz
-        sepet = Sepet.query.all()
-        for S in sepet:
-            S.adet = 0
-        db.session.commit()
-
-
-        global kullanici
-        kullanici = email
-
-        # kullanıcının admin olup olmadığının bu if else ile kontrol ediyoruz.(yetki 1 admin -- yetki 0 admin değil)
-        if Kullanicilar.query.filter_by(email=email, sifre=hashli, yetki=1).first():
-            global yetki
-            global girisyapildi        
-            yetki = True
-            girisyapildi = True
-            
-            return redirect(url_for('index'))
-        else:
-            data = Kullanicilar.query.filter_by(email=email, sifre=hashli).first()
-            if data is not None:
-                girisyapildi = True
-                yetki = False
-                             
-                return redirect(url_for('index'))
-            else:
-                return render_template('login.html')
+@app.route('/login', methods=['GET'])
+def login():        
     return render_template('login.html')
 
 if __name__ == '__main__':

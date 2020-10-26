@@ -11,7 +11,7 @@ project_id = 'abstract-veld-289612'
 location = 'asia-east1'
 product_set_id = 'PAIR'
 bucket_name = 'ftmle'
-storage_client = storage.Client.from_service_account_json("./Credentials/abstract-veld-289612-327ddac80eba.json")
+storage_client = storage.Client.from_service_account_json("./credentials/abstract-veld-289612-327ddac80eba.json")
 
 def generate_download_signed_url_v4(bucket_name, blob_name):
     """Generates a v4 signed URL for downloading a blob.
