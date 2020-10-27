@@ -25,14 +25,11 @@ conn = pymysql.connect(
 Will update codebase to use local images and database for easy demo
 
 ## Streamlit Mode
-Install dependencies
-
 ```
 streamlit run app.py
 ```
 
 ## Flask Mode
-
 ```
 export FLASK_APP=app.py
 flask run -h 0.0.0.0 -p 8080
@@ -42,4 +39,9 @@ flask run -h 0.0.0.0 -p 8080
 <img src="screenshot/Screenshot02.png" width="23%" height="200px"></img> 
 <img src="screenshot/Screenshot03.png" width="23%" height="200px"></img> 
 <img src="screenshot/Screenshot04.png" width="23%" height="200px"></img> 
+
+## References
+https://blog.insightdatascience.com/building-a-scalable-online-product-recommender-with-keras-docker-gcp-and-gke-52a5ab2c7688
+https://tech.wayfair.com/data-science/2019/09/introducing-harmonia-context-aware-product-recommendation-from-room-images/
+https://github.com/IvonaTau/style-search
 
