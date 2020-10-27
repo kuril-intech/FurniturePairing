@@ -22,7 +22,7 @@ export FLASK_APP=app.py
 flask run -h 0.0.0.0 -p 8080
 ```
 ## Screenshot
-![](screenshot/screenshot01.png)
+![](screenshot/Screenshot01.png)
 ![](https://cloud.githubusercontent.com/assets/4307137/10105290/2a183f3a-63ae-11e5-9380-50d9f6d8afd6.png)
 ![](https://cloud.githubusercontent.com/assets/4307137/10105284/26aa7ad4-63ae-11e5-88b7-bc523a095c9f.png)
 ![](https://cloud.githubusercontent.com/assets/4307137/10105288/28698fae-63ae-11e5-8ba7-a62360a8e8a7.png)
