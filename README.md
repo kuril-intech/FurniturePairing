@@ -1,6 +1,6 @@
 # Furniture Recommendation Systems
 
-<img src="logo.png" alt="drawing" width="50%"/>
+<img src="logo.png" alt="drawing" width="25%"/>
 
 ## Introduction
 
