@@ -22,8 +22,8 @@ export FLASK_APP=app.py
 flask run -h 0.0.0.0 -p 8080
 ```
 ## Screenshot
-<img src="screenshot/Screenshot01.png" width="23%"></img> 
-<img src="screenshot/Screenshot02.png" width="23%"></img> 
+<img src="screenshot/Screenshot01.png" width="23%" height="50px"></img> 
+<img src="screenshot/Screenshot02.png" width="23%" height="50px"></img> 
 <img src="screenshot/Screenshot03.png" width="23%"></img> 
 <img src="screenshot/Screenshot04.png" width="23%"></img> 
 
