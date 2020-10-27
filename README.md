@@ -8,7 +8,7 @@
 Pair is an image-based product recommender for matching visually similar products across categories. User upload an image of a preferred furniture, and the model will look up for similar products existed in product database and return furniture from another categories that have similar design.
 
 ## Deployment
-![screenshot/Demo Setup.png]
+![Deployment]screenshot/Demo%20Setup.png
 
 ## Installation
 This app use Google Cloud Vision API and Google Cloud Storage to predict and store data. Please put service_account.json inside this location.
