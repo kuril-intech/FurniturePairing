@@ -34,6 +34,8 @@ streamlit run app.py
 export FLASK_APP=app.py
 flask run -h 0.0.0.0 -p 8080
 ```
+## Recommendation System
+This is my first try to impletement Tensorflow Recommender addons of Tensorflow which use a neural network with two sub-models that learn representations for queries and candidates separately. The score of a given query-candidate pair is simply the dot product of the outputs of these two towers.
 ## Screenshot
 <img src="screenshot/Screenshot01.png" width="23%" height="200px"></img> 
 <img src="screenshot/Screenshot02.png" width="23%" height="200px"></img> 
