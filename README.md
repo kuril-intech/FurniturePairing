@@ -46,6 +46,8 @@ This is my first try to impletement Tensorflow Recommender addons of Tensorflow 
 
 ## References
 https://blog.insightdatascience.com/building-a-scalable-online-product-recommender-with-keras-docker-gcp-and-gke-52a5ab2c7688
+
 https://tech.wayfair.com/data-science/2019/09/introducing-harmonia-context-aware-product-recommendation-from-room-images/
+
 https://github.com/IvonaTau/style-search
 
