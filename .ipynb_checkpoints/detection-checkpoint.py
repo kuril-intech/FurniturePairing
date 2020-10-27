@@ -130,8 +130,8 @@ def get_similar_products_uri(
 conn = pymysql.connect(
     host='localhost',
     port=int(3306),
-    user="root",
-    passwd='@dmin123',
+    user="mkhoa",
+    passwd='CoderSchool@2020',
     db="Pair",
     charset='utf8mb4')
 
@@ -143,8 +143,8 @@ def query_product(id):
     '''
     query = f'''
     SELECT a.id, a.website, a.product, a.image, a.url, b.group_category
-    FROM project.ProductHeader a
-    LEFT JOIN project.category b ON a.category = b.Category
+    FROM ProductHeader a
+    LEFT JOIN category b ON a.category = b.Category
     WHERE a.id = '{id}'
     '''
     try:
@@ -160,7 +160,7 @@ def get_thumbnail(id):
     '''
     query = f'''
     SELECT id, bucket_path
-    FROM project.Files
+    FROM Files
     WHERE id = '{id}' AND bucket_path like '%Thumbnails%'
     '''
     try:
@@ -178,8 +178,8 @@ def bucket2product(bucket_path):
     '''
     query = f'''
     SELECT a.id, a.product, a.url
-    FROM project.ProductHeader a
-    LEFT JOIN project.Files b ON a.id = b.id
+    FROM ProductHeader a
+    LEFT JOIN Files b ON a.id = b.id
     WHERE b.bucket_path = '{bucket_path}'
     '''
     try:

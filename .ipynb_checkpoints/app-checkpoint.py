@@ -19,7 +19,7 @@ from retrieval import retrieval
 
 app = Flask(__name__)
 app.secret_key = 'keye'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@dmin123@localhost:3306/Pair'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mkhoa:CoderSchool@2020@localhost:3306/Pair'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 project_id = 'abstract-veld-289612'
@@ -192,6 +192,6 @@ def login():
     return render_template('login.html')
 
 if __name__ == '__main__':
-  app.run(debug=True, host='0.0.0.0', port=8085)
+  app.run(debug=True, host='0.0.0.0', port=8080)
 
  
