@@ -1,126 +1,20 @@
 import airflow
-import pandas as pd
-import requests
-import selenium
-import time
+import urllib
 import pymysql
-import json
-import re
+import os
+import pandas as pd
 
+from google.cloud import storage
+from urllib.parse import urlparse
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from httplib2 import Http
-from json import dumps
-
-driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver', options = options)
-def push_notification(message):
-    """Hangouts Chat incoming webhook quickstart.
-    
-    """
-    url = 'https://chat.googleapis.com/v1/spaces/AAAAaREeoeA/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=DQ41G8_LUeuw2Tj_4s78qlmjpA5loEL9gZRdq1N9hOo%3D'
-    bot_message = {
-        'text' : message}
-    message_headers = {'Content-Type': 'application/json; charset=UTF-8'}
-
-    http_obj = Http()
-
-    response = http_obj.request(
-        uri=url,
-        method='POST',
-        headers=message_headers,
-        body=dumps(bot_message),)
-
-def houzz_category(url):
-    '''
-    Crawling category page of Houzz
-
-
-    '''
-    houzz = requests.get(url)
-    soup = BeautifulSoup(houzz.text, 'html.parser')
-    soup = soup.body.find_all('a', {'class': 'department-card spf-link'})
-    category = []
-    for i in soup:
-        try:
-            d = {'Category': '', 'URL': ''}
-            d['Category'] = i.text
-            d['URL'] = i['href']
-            category.append(d)
-        except:
-            print('Error')
-    return category
-
-def houzz_sub_category(url):
-    '''
-    Crawling Sub-Category link
-
-    '''
-    houzz = requests.get(url)
-    soup = BeautifulSoup(houzz.text, 'html.parser')
-    soup = soup.body.find_all('div', {'class': 'hz-browse-top-category__card-wrapper'})
-    category = []
-    for i in soup:
-        try:
-            d = {'Category': '', 'URL': ''}
-            d['Category'] = i.text
-            d['URL'] = i.a['href']
-            category.append(d)
-        except:
-            print('Error')
-    return category
-
-def houzz_header(url):
-    '''
-    Get product header data and insert into database
-    
-    '''
-    driver.get(url)
-    time.sleep(10)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(10)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    next_url = soup.body.find('a', {'class': 'hz-pagination-link--next'})
-    product_list = soup.body.find_all('a', {'class': 'hz-product-card__link'})
-    
-    if next_url != None:
-        for i in product_list:
-            try:          
-                website = 'houzz.com'
-                category = soup.body.h1.text
-                category_url = url
-                product = i.find('span', {'class': 'hz-product-card__product-title'}).text
-                image = i.find('source')['srcset']
-                price = i.find('span', {'class': 'hz-product-price--final'}).text
-                product_url = i['href']
-                push_notification('Scrapping at ' + product_url)
-                insert_to_categories(website, category, category_url, product, image, price, product_url)
-            except:
-                push_notification('Error as ' + url)
-        push_notification('Next Page at :' + 'https://houzz.com' + next_url['href'])
-        houzz_header('https://houzz.com' + next_url['href'])
-    else:
-         for i in product_list:
-            try:
-                website = 'houzz.com'
-                category = soup.body.h1.text
-                category_url = url
-                product = i.find('span', {'class': 'hz-product-card__product-title'}).text
-                image = i.find('source')['srcset']
-                price = i.find('span', {'class': 'hz-product-price--final'}).text
-                product_url = i['href']
-                push_notification('Scrapping at ' + product_url)
-                insert_to_categories(website, category, category_url, product, image, price, product_url)
-            except:
-                push_notification('Error as ' + url)
+project_id = 'optical-scarab-285012'
+bucket_name = 'mle-project'
+path = 'Images/Thumbnails/'
+storage_client = storage.Client.from_service_account_json("/home/FurniturePairing/credentials/abstract-veld-289612-327ddac80eba.json")
 
 #Setup Connection to mysql database
 conn = pymysql.connect(
@@ -131,16 +25,49 @@ conn = pymysql.connect(
     db="Pair",
     charset='utf8mb4')
 
-cur = conn.cursor()  
+cur = conn.cursor()
 
-#Insert into Category Table
-def insert_to_categories(website, category, category_url, product, image, price, url):
+def upload_blob(bucket_name, url, path, prefix):
+    '''
+    Upload to Google Cloud Storage
+
+    '''   
+    file = urllib.request.urlopen(url)
+    content_type = file.info().get_content_type()
+    file_name = os.path.basename(urlparse(url).path)
+    dest = path + str(prefix) + '-' + file_name
+    
+    bucket = storage_client.get_bucket(bucket_name)
+    blob = bucket.blob(dest)
+
+    blob.upload_from_string(file.read(), content_type=content_type)
+    
+    return dest
+
+def query_url():
+    '''
+    
+    '''
+    query = '''
+    SELECT id, image
+    FROM project.ProductHeader
+    WHERE image like 'http%';;
+    '''
+    try:
+        cur.execute(query)
+    except Exception as err:
+        print('ERROR BY INSERT:', err)
+    result = cur.fetchall()
+    df = pd.DataFrame(result, columns=['id', 'url'])
+    return df
+
+def insert_filepath(id, url, bucket, bucket_path):
     '''
     
     '''
     query = f'''
-    INSERT INTO ProductHeader(website, category, category_url, product, image, price, url)
-    VALUES('{website}', '{category}', '{category_url}', '{product}', '{image}', '{price}', '{url}');
+    INSERT INTO Files(id, url, bucket, bucket_path)
+    VALUES('{id}', '{url}', '{bucket}', '{bucket_path}');
     '''
     try:
         cur.execute(query)
@@ -148,17 +75,50 @@ def insert_to_categories(website, category, category_url, product, image, price,
     except Exception as err:
         print('ERROR BY INSERT:', err)
 
+def saving_image(**kwargs):
+    '''
+
+    '''
+    ti = kwargs['ti']
+    df = ti.xcom_pull(task_ids='query_url')
+    df = df[:5]
+    for i in df.values:
+        id = i[0]
+        url = i[1]
+        filepath = upload_blob(bucket_name, url, path, id)
+        print('Uploaded' + str(id))
+        insert_filepath(id, url, bucket_name, filepath)
+        print('Recorded' + str(id))
 
 # --------------------------------------------------------------------------------
 # set default arguments
 # --------------------------------------------------------------------------------
 default_args = {
     'owner': 'airflow',
-    'depends_on_past': False,
-    'start_date': airflow.utils.dates.days_ago(2),
-    'email': ['airflow@example.com'],
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5)
+    'start_date': datetime(2020, 10, 1, 10, 00, 00),
+    'concurrency': 1,
+    'retries': 0
 }
+
+# --------------------------------------------------------------------------------
+# Pipeline
+# --------------------------------------------------------------------------------
+
+dag = DAG('save_img2bucket',
+         catchup=False,
+         default_args=default_args,
+         schedule_interval=None)
+
+opr_query_url = PythonOperator(task_id='query',
+                                    python_callable=query_url, 
+                                    provide_context=True,
+                                    dag=dag)
+
+opr_saving_image = PythonOperator(task_id='saving',
+                                    python_callable=saving_image, 
+                                    dag=dag,
+                                    provide_context=True)
+
+opr_query_url >> opr_saving_image
+
+
